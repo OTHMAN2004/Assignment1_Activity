@@ -4,15 +4,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
-
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-
-import com.example.assignment1_activity.Country;
-import com.example.assignment1_activity.CountryDetailActivity;
 import com.example.assignment1_activity.databinding.ItemCountryBinding;
-import com.example.assignment1_activity.databinding.ItemCountryBinding;
-
 import java.util.List;
 
 public class CountryAdapter extends RecyclerView.Adapter<CountryAdapter.CountryViewHolder> {
@@ -49,8 +43,17 @@ public class CountryAdapter extends RecyclerView.Adapter<CountryAdapter.CountryV
     @Override
     public int getItemCount() { return countryList.size(); }
 
+    public void updateCountries(List<Country> newList) {
+        countryList.clear();
+        countryList.addAll(newList);
+        notifyDataSetChanged();
+    }
+
     public static class CountryViewHolder extends RecyclerView.ViewHolder {
         ItemCountryBinding binding;
-        public CountryViewHolder(@NonNull ItemCountryBinding binding) { super(binding.getRoot()); this.binding = binding; }
+        public CountryViewHolder(@NonNull ItemCountryBinding binding) {
+            super(binding.getRoot());
+            this.binding = binding;
+        }
     }
 }

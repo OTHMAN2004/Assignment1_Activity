@@ -1,20 +1,17 @@
 package com.example.assignment1_activity;
 
 import android.os.Bundle;
-
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
-
 import com.example.assignment1_activity.databinding.ActivityMainBinding;
-
-import java.util.List;
+import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
 
     private ActivityMainBinding binding;
-    private com.example.assignment1_activity.CountryAdapter adapter;
-    private CountryDatabase db;
-    private List<Country> countryList;
+    private CountryAdapter adapter;
+    private CountryViewModel viewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -22,25 +19,19 @@ public class MainActivity extends AppCompatActivity {
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        db = CountryDatabase.getInstance(this);
-
-        if (db.countryDao().getAllCountries().isEmpty()) {
-            db.countryDao().insert(new Country("Palestine", "Jerusalem", "Middle East", R.drawable.flag_palestine));
-            db.countryDao().insert(new Country("Yemen", "Sanaa", "Middle East", R.drawable.flag_yemen));
-            db.countryDao().insert(new Country("Singapore", "singapore", "South East Asia", R.drawable.singapore_flag));
-        }
-
-        countryList = db.countryDao().getAllCountries();
-        adapter = new CountryAdapter(this, countryList);
+        adapter = new CountryAdapter(this, new ArrayList<>());
         binding.recyclerView.setLayoutManager(new LinearLayoutManager(this));
         binding.recyclerView.setAdapter(adapter);
-    }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        countryList.clear();
-        countryList.addAll(db.countryDao().getAllCountries());
-        adapter.notifyDataSetChanged();
+        viewModel = new ViewModelProvider(this).get(CountryViewModel.class);
+
+        // Insert initial countries if empty
+        if (viewModel.getCountries().getValue() == null || viewModel.getCountries().getValue().isEmpty()) {
+            viewModel.insert(new Country("Palestine", "Jerusalem", "Middle East", R.drawable.flag_palestine));
+            viewModel.insert(new Country("Yemen", "Sanaa", "Middle East", R.drawable.flag_yemen));
+            viewModel.insert(new Country("Singapore", "Singapore", "South East Asia", R.drawable.singapore_flag));
+        }
+
+        viewModel.getCountries().observe(this, countries -> adapter.updateCountries(countries));
     }
 }

@@ -3,16 +3,16 @@ package com.example.assignment1_activity;
 import android.os.Bundle;
 import android.widget.EditText;
 import android.widget.Toast;
-
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-
+import androidx.lifecycle.ViewModelProvider;
 import com.example.assignment1_activity.databinding.ActivityCountryDetailBinding;
 
 public class CountryDetailActivity extends AppCompatActivity {
 
     private ActivityCountryDetailBinding binding;
     private Country country;
+    private CountryViewModel viewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -20,8 +20,9 @@ public class CountryDetailActivity extends AppCompatActivity {
         binding = ActivityCountryDetailBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        country = (Country) getIntent().getSerializableExtra("country");
+        viewModel = new ViewModelProvider(this).get(CountryViewModel.class);
 
+        country = (Country) getIntent().getSerializableExtra("country");
         if (country != null) {
             binding.countryFlagIv.setImageResource(country.getFlagResId());
             binding.countryNameTv.setText(country.getName());
@@ -42,7 +43,7 @@ public class CountryDetailActivity extends AppCompatActivity {
                 .setView(input)
                 .setPositiveButton("Save", (dialog, which) -> {
                     country.setDescription(input.getText().toString());
-                    CountryDatabase.getInstance(this).countryDao().update(country);
+                    viewModel.update(country);
                     binding.txtDescription.setText(country.getDescription());
                     Toast.makeText(this, "Updated!", Toast.LENGTH_SHORT).show();
                 })
@@ -55,7 +56,7 @@ public class CountryDetailActivity extends AppCompatActivity {
                 .setTitle("Delete Country")
                 .setMessage("Are you sure you want to delete " + country.getName() + "?")
                 .setPositiveButton("Delete", (dialog, which) -> {
-                    CountryDatabase.getInstance(this).countryDao().delete(country);
+                    viewModel.delete(country);
                     finish();
                 })
                 .setNegativeButton("Cancel", null)
